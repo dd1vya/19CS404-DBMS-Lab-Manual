@@ -78,17 +78,14 @@ END;
 
 **PL/SQL query:**
 ```
--- Enable output
 SET SERVEROUTPUT ON;
 
--- Step 1: Drop and create the employees table
 BEGIN
     EXECUTE IMMEDIATE 'DROP TABLE employees';
 EXCEPTION
     WHEN OTHERS THEN
-        NULL; -- Ignore error if table doesn't exist
+        NULL; 
 END;
-
 
 CREATE TABLE employees (
     emp_id      NUMBER PRIMARY KEY,
@@ -96,10 +93,6 @@ CREATE TABLE employees (
     designation VARCHAR2(100)
 );
 
--- Step 2: Do NOT insert any data
--- This is intentional so the error message will be triggered
-
--- Step 3: PL/SQL block with cursor and proper NO_DATA_FOUND handling
 DECLARE
     CURSOR emp_cursor IS
         SELECT emp_name, designation FROM employees;
@@ -158,13 +151,11 @@ The program should display the employee details or an error message.
 ```
 SET SERVEROUTPUT ON;
 /
-
--- Step 1: Drop and Create employees table with salary
 BEGIN
     EXECUTE IMMEDIATE 'DROP TABLE employees';
 EXCEPTION
     WHEN OTHERS THEN
-        NULL; -- Ignore if table doesn't exist
+        NULL; 
 END;
 /
 
@@ -175,9 +166,6 @@ CREATE TABLE employees (
     salary       NUMBER
 );
 /
-
--- Step 2: Insert sample employee data with varying salary
--- Comment out these inserts to test the "no employees found" output
 BEGIN
     INSERT INTO employees VALUES (1, 'Alice', 'Manager', 8000);
     INSERT INTO employees VALUES (2, 'Bob', 'Developer', 4500);
@@ -188,13 +176,10 @@ BEGIN
 END;
 /
 
--- Step 3: PL/SQL Block using Parameterized Cursor and Exception Handling
 DECLARE
-    -- Input salary range
     v_min_salary NUMBER := 9000;
     v_max_salary NUMBER := 10000;
 
-    -- Parameterized cursor to fetch employees in the range
     CURSOR emp_cursor(p_min NUMBER, p_max NUMBER) IS
         SELECT emp_id, emp_name, designation, salary
         FROM employees
@@ -203,7 +188,6 @@ DECLARE
     v_found BOOLEAN := FALSE;
 
 BEGIN
-    -- Cursor FOR loop
     FOR emp_rec IN emp_cursor(v_min_salary, v_max_salary) LOOP
         v_found := TRUE;
         DBMS_OUTPUT.PUT_LINE(
@@ -214,7 +198,6 @@ BEGIN
         );
     END LOOP;
 
-    -- If no data found, raise exception
     IF NOT v_found THEN
         RAISE NO_DATA_FOUND;
     END IF;
@@ -253,16 +236,13 @@ The program should display the employee details within the specified salary rang
 
 **PL/SQL query:**
 ```
--- Enable DBMS output
 SET SERVEROUTPUT ON;
 /
-
--- Step 1: Drop and create the employees table with dept_no
 BEGIN
     EXECUTE IMMEDIATE 'DROP TABLE employees';
 EXCEPTION
     WHEN OTHERS THEN
-        NULL; -- Ignore if table doesn't exist
+        NULL; 
 END;
 /
 
@@ -275,14 +255,9 @@ CREATE TABLE employees (
 );
 /
 
--- Step 2: No INSERT statements – table remains empty
-
--- Step 3: PL/SQL block using Cursor FOR loop and exception handling
-
 DECLARE
     v_found BOOLEAN := FALSE;
 BEGIN
-    -- Cursor FOR loop to fetch employee names and dept numbers
     FOR emp_rec IN (
         SELECT emp_name, dept_no FROM employees
     ) LOOP
@@ -291,7 +266,6 @@ BEGIN
                              ', Department No: ' || emp_rec.dept_no);
     END LOOP;
 
-    -- Check if no data was found
     IF NOT v_found THEN
         RAISE NO_DATA_FOUND;
     END IF;
@@ -329,15 +303,13 @@ The program should display employee names with their department numbers or the a
 
 **PL/SQL query:**
 ```
--- Enable DBMS output
 SET SERVEROUTPUT ON;
 
--- 1) Drop & recreate the employees table
 BEGIN
   EXECUTE IMMEDIATE 'DROP TABLE employees';
 EXCEPTION
   WHEN OTHERS THEN
-    NULL;  -- ignore if it doesn't exist
+    NULL; 
 END;
 
 
@@ -348,14 +320,11 @@ CREATE TABLE employees (
   salary      NUMBER
 );
 
--- 2) Insert a single row (so cursor can open)
 BEGIN
   INSERT INTO employees VALUES (1, 'Alice', 'Manager', 6000);
   COMMIT;
 END;
 /
-
--- 3) PL/SQL block with %ROWTYPE cursor and a forced divide-by-zero
 DECLARE
   CURSOR c_emp IS
     SELECT * FROM employees;
@@ -366,10 +335,8 @@ BEGIN
     FETCH c_emp INTO v_emp;
   CLOSE c_emp;
 
-  -- FORCE an unexpected error (division by zero)
   v_dummy := v_emp.salary / 0;
 
-  -- (any normal display logic here would never be reached)
 EXCEPTION
   WHEN NO_DATA_FOUND THEN
     DBMS_OUTPUT.PUT_LINE('No employee records found.');
