@@ -32,15 +32,6 @@ END;
 
 ### Program:
 ```
-CREATE OR REPLACE TRIGGER trg_log_employee_insert
-AFTER INSERT ON employees
-FOR EACH ROW
-BEGIN
-   INSERT INTO employee_log (emp_id, emp_name, action_time)
-   VALUES (:NEW.emp_id, :NEW.emp_name, SYSDATE);
-END;
-```
-```
 CREATE TABLE employee_log (
    emp_id     NUMBER,
    emp_name   VARCHAR2(50),
